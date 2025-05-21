@@ -14,6 +14,7 @@ import GoalsPage from "./pages/GoalsPage";
 import ReportsPage from "./pages/ReportsPage";
 import SettingsPage from "./pages/SettingsPage";
 import ExportDataPage from "./pages/ExportDataPage";
+import FinancialPlanningPage from "./pages/FinancialPlanningPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
               <Route path="/categories" element={<CategoriesPage />} />
               <Route path="/budgets" element={<BudgetsPage />} />
               <Route path="/goals" element={<GoalsPage />} />
+              <Route path="/planning" element={<FinancialPlanningPage />} />
               <Route path="/reports" element={<ReportsPage />} />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/export" element={<ExportDataPage />} />
