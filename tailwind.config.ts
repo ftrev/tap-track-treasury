@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,15 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Custom colors for our finance app
+				finance: {
+					primary: '#1EBBD7', // Turquoise blue
+					secondary: '#42D392', // Mint green
+					alert: '#FF7F50', // Soft coral
+					background: '#FFFFFF', // White
+					backgroundAlt: '#F8F9FA', // Light gray
+					text: '#333333', // Dark gray
 				}
 			},
 			borderRadius: {
@@ -84,11 +94,36 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'fade-in': {
+					'0%': {
+						opacity: '0',
+						transform: 'translateY(5px)'
+					},
+					'100%': {
+						opacity: '1',
+						transform: 'translateY(0)'
+					}
+				},
+				'slide-in': {
+					'0%': { 
+						transform: 'translateY(100%)',
+						opacity: '0'
+					},
+					'100%': { 
+						transform: 'translateY(0)',
+						opacity: '1'
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'fade-in': 'fade-in 0.3s ease-out',
+				'slide-in': 'slide-in 0.3s ease-out'
+			},
+			fontFamily: {
+				sans: ['Roboto', 'sans-serif'],
 			}
 		}
 	},
