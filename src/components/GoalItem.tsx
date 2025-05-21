@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { Edit2, Trash2 } from 'lucide-react';
-import { FinancialGoal } from '../types';
+import { FinancialGoal, FinancialGoalStatus } from '../types';
 import { formatCurrency } from '../lib/utils';
 import { Progress } from './ui/progress';
 import { Button } from './ui/button';
