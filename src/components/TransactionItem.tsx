@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Transaction } from '../types';
 import { formatCurrency, formatDate } from '../data/mockData';
-import { Trash2, Edit } from 'lucide-react';
+import { Trash2, Edit, Image } from 'lucide-react';
 import { useTransactions } from '../contexts/TransactionContext';
 import { 
   AlertDialog,
@@ -15,6 +15,7 @@ import {
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 import { EditTransactionModal } from './EditTransactionModal';
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 type TransactionItemProps = {
   transaction: Transaction;
@@ -24,8 +25,9 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({ transaction })
   const { deleteTransaction } = useTransactions();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
   
-  const { category, amount, description, date, type } = transaction;
+  const { category, amount, description, date, type, receiptImage } = transaction;
 
   const handleDelete = () => {
     deleteTransaction(transaction.id);
@@ -54,6 +56,15 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({ transaction })
             {type === 'expense' ? '-' : type === 'income' ? '+' : ''}{formatCurrency(amount)}
           </div>
           <div className="flex">
+            {receiptImage && (
+              <button 
+                onClick={() => setIsImagePreviewOpen(true)}
+                className="p-1.5 mr-1 hover:bg-gray-100 rounded-full"
+                aria-label="Ver recibo"
+              >
+                <Image size={16} className="text-gray-500" />
+              </button>
+            )}
             <button 
               onClick={() => setIsEditModalOpen(true)}
               className="p-1.5 mr-1 hover:bg-gray-100 rounded-full"
@@ -96,6 +107,21 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({ transaction })
         onClose={() => setIsEditModalOpen(false)}
         transaction={transaction}
       />
+      
+      {/* Image Preview Dialog */}
+      {receiptImage && (
+        <Dialog open={isImagePreviewOpen} onOpenChange={setIsImagePreviewOpen}>
+          <DialogContent className="max-w-md p-1 sm:p-2">
+            <div className="overflow-auto max-h-[80vh]">
+              <img 
+                src={receiptImage} 
+                alt="Recibo" 
+                className="w-full h-auto object-contain" 
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   );
 };

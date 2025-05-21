@@ -4,7 +4,8 @@ import { useTransactions } from '../contexts/TransactionContext';
 import { Transaction, TransactionType, CategoryType } from '../types';
 import { Dialog } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { X, Camera, Image } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 type AddTransactionModalProps = {
   isOpen: boolean;
@@ -14,6 +15,7 @@ type AddTransactionModalProps = {
 
 export function AddTransactionModal({ isOpen, onClose, initialType = 'expense' }: AddTransactionModalProps) {
   const { addTransaction, getCategoriesByType } = useTransactions();
+  const { toast } = useToast();
   
   // Form state
   const [amount, setAmount] = useState<string>('');
@@ -21,6 +23,8 @@ export function AddTransactionModal({ isOpen, onClose, initialType = 'expense' }
   const [type, setType] = useState<TransactionType>(initialType);
   const [selectedCategory, setSelectedCategory] = useState<CategoryType | null>(null);
   const [categories, setCategories] = useState<CategoryType[]>([]);
+  const [receiptImage, setReceiptImage] = useState<string | undefined>(undefined);
+  const [showImagePreview, setShowImagePreview] = useState<boolean>(false);
   
   // Update categories when type changes
   useEffect(() => {
@@ -36,8 +40,50 @@ export function AddTransactionModal({ isOpen, onClose, initialType = 'expense' }
       setAmount('');
       setDescription('');
       setSelectedCategory(null);
+      setReceiptImage(undefined);
+      setShowImagePreview(false);
     }
   }, [isOpen, initialType]);
+  
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    // Validação de tamanho (limite de 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      toast({
+        title: "Arquivo muito grande",
+        description: "A imagem deve ter no máximo 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Verificar se é uma imagem
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Formato inválido",
+        description: "Por favor, selecione uma imagem",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        setReceiptImage(event.target.result.toString());
+        setShowImagePreview(true);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+  
+  const removeImage = () => {
+    setReceiptImage(undefined);
+    setShowImagePreview(false);
+  };
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,6 +100,7 @@ export function AddTransactionModal({ isOpen, onClose, initialType = 'expense' }
       category: selectedCategory,
       description: description.trim() || selectedCategory.name,
       date: new Date().toISOString(),
+      receiptImage: receiptImage,
     };
     
     addTransaction(newTransaction);
@@ -153,13 +200,53 @@ export function AddTransactionModal({ isOpen, onClose, initialType = 'expense' }
               />
             </div>
             
-            <div className="mb-6">
+            <div className="mb-4">
               <label className="block text-sm font-medium mb-2">Data</label>
               <input 
                 type="date"
                 className="w-full p-2 border rounded-lg"
                 defaultValue={new Date().toISOString().split('T')[0]}
               />
+            </div>
+            
+            {/* Campo para upload de imagem do recibo */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">Comprovante/Recibo (opcional)</label>
+              {showImagePreview && receiptImage ? (
+                <div className="relative border rounded-lg overflow-hidden">
+                  <img 
+                    src={receiptImage} 
+                    alt="Recibo" 
+                    className="max-h-48 w-auto mx-auto" 
+                  />
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="destructive"
+                    className="absolute top-1 right-1 h-6 w-6"
+                    onClick={removeImage}
+                  >
+                    <X size={14} />
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center">
+                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                      <Camera size={24} className="mb-1 text-gray-500" />
+                      <p className="text-xs text-gray-500">
+                        Clique para adicionar um recibo ou comprovante
+                      </p>
+                    </div>
+                    <input 
+                      type="file" 
+                      className="hidden" 
+                      accept="image/*"
+                      onChange={handleFileChange}
+                    />
+                  </label>
+                </div>
+              )}
             </div>
             
             <Button 

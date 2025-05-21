@@ -1,4 +1,3 @@
-
 export type TransactionType = 'income' | 'expense' | 'transfer';
 
 export type CategoryType = {
@@ -16,6 +15,7 @@ export type Transaction = {
   category: CategoryType;
   description?: string;
   date: string;
+  receiptImage?: string; // Campo adicionado para armazenar imagem em base64
 };
 
 export type Budget = {

@@ -20,6 +20,8 @@ import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { useTransactions } from '../contexts/TransactionContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Camera, X, Image } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 type EditTransactionModalProps = {
   isOpen: boolean;
@@ -35,6 +37,9 @@ export const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
   const { editTransaction, getCategoriesByType } = useTransactions();
   const [transactionType, setTransactionType] = useState<TransactionType>(transaction.type);
   const [categories, setCategories] = useState(getCategoriesByType(transaction.type));
+  const [receiptImage, setReceiptImage] = useState<string | undefined>(transaction.receiptImage);
+  const [showImagePreview, setShowImagePreview] = useState<boolean>(!!transaction.receiptImage);
+  const { toast } = useToast();
   
   const form = useForm({
     defaultValues: {
@@ -55,6 +60,46 @@ export const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
     }
   }, [transactionType, getCategoriesByType, form]);
   
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    // Validação de tamanho (limite de 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      toast({
+        title: "Arquivo muito grande",
+        description: "A imagem deve ter no máximo 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Verificar se é uma imagem
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Formato inválido",
+        description: "Por favor, selecione uma imagem",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        setReceiptImage(event.target.result.toString());
+        setShowImagePreview(true);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+  
+  const removeImage = () => {
+    setReceiptImage(undefined);
+    setShowImagePreview(false);
+  };
+  
   const onSubmit = (data: any) => {
     const selectedCategory = categories.find(c => c.id === data.category);
     
@@ -68,6 +113,7 @@ export const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
       category: selectedCategory,
       description: data.description,
       date: new Date(data.date).toISOString(),
+      receiptImage: receiptImage,
     });
     
     onClose();
@@ -160,6 +206,46 @@ export const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
                   </FormItem>
                 )}
               />
+              
+              {/* Campo para upload de imagem do recibo */}
+              <div className="space-y-2">
+                <FormLabel>Comprovante/Recibo</FormLabel>
+                {showImagePreview && receiptImage ? (
+                  <div className="relative">
+                    <img 
+                      src={receiptImage} 
+                      alt="Recibo" 
+                      className="max-h-48 w-auto mx-auto rounded border" 
+                    />
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="destructive"
+                      className="absolute top-1 right-1 h-6 w-6"
+                      onClick={removeImage}
+                    >
+                      <X size={14} />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center">
+                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        <Camera size={24} className="mb-1 text-gray-500" />
+                        <p className="text-xs text-gray-500">
+                          Clique para adicionar um recibo ou comprovante
+                        </p>
+                      </div>
+                      <input 
+                        type="file" 
+                        className="hidden" 
+                        accept="image/*"
+                        onChange={handleFileChange}
+                      />
+                    </label>
+                  </div>
+                )}
+              </div>
               
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
