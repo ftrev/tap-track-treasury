@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Home, BarChart2, Settings, Wallet, Tags } from 'lucide-react';
+import { Home, BarChart2, Settings, Wallet, Tags, Coins } from 'lucide-react';
 
 export const BottomNavigation = () => {
   const location = useLocation();
@@ -28,6 +28,11 @@ export const BottomNavigation = () => {
         <NavLink to="/categories" className={getNavItemClass('/categories')}>
           <Tags strokeWidth={1.5} className="h-6 w-6 mb-1" />
           <span>Categorias</span>
+        </NavLink>
+        
+        <NavLink to="/budgets" className={getNavItemClass('/budgets')}>
+          <Coins strokeWidth={1.5} className="h-6 w-6 mb-1" />
+          <span>Orçamentos</span>
         </NavLink>
         
         <NavLink to="/reports" className={getNavItemClass('/reports')}>

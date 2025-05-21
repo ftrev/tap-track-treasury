@@ -1,12 +1,14 @@
-
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { Transaction, CategoryType, BalanceSummary, TransactionType } from '../types';
+import { Transaction, CategoryType, BalanceSummary, TransactionType, Budget } from '../types';
 import { mockTransactions, categories as defaultCategories, calculateBalance } from '../data/mockData';
 import { useToast } from "../hooks/use-toast";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 type TransactionContextType = {
   transactions: Transaction[];
   categories: CategoryType[];
+  budgets: Budget[];
   balanceSummary: BalanceSummary;
   userName: string | null;
   setUserName: (name: string) => void;
@@ -18,6 +20,12 @@ type TransactionContextType = {
   addCategory: (category: Omit<CategoryType, 'id'>) => void;
   editCategory: (id: string, category: Omit<CategoryType, 'id'>) => void;
   deleteCategory: (id: string) => boolean;
+  addBudget: (budget: Omit<Budget, 'id' | 'spent' | 'lastUpdated'>) => void;
+  updateBudget: (id: string, budget: Partial<Omit<Budget, 'id' | 'spent' | 'lastUpdated'>>) => void;
+  deleteBudget: (id: string) => void;
+  getBudgetByCategoryId: (categoryId: string, month: string) => Budget | undefined;
+  getCurrentMonthBudgets: () => Budget[];
+  getBudgetProgress: (budget: Budget) => number;
 };
 
 const TransactionContext = createContext<TransactionContextType | undefined>(undefined);
@@ -37,6 +45,7 @@ type TransactionProviderProps = {
 export const TransactionProvider = ({ children }: TransactionProviderProps) => {
   const [transactions, setTransactions] = useState<Transaction[]>(mockTransactions);
   const [categories, setCategories] = useState<CategoryType[]>(defaultCategories);
+  const [budgets, setBudgets] = useState<Budget[]>([]);
   const [userName, setUserName] = useState<string | null>(null);
   const { toast } = useToast();
 
@@ -71,6 +80,15 @@ export const TransactionProvider = ({ children }: TransactionProviderProps) => {
         setCategories(defaultCategories);
       }
     }
+
+    const savedBudgets = localStorage.getItem('financeApp_budgets');
+    if (savedBudgets) {
+      try {
+        setBudgets(JSON.parse(savedBudgets));
+      } catch (error) {
+        console.error('Error parsing saved budgets:', error);
+      }
+    }
   }, []);
 
   // Save transactions to localStorage whenever they change
@@ -83,8 +101,121 @@ export const TransactionProvider = ({ children }: TransactionProviderProps) => {
     localStorage.setItem('financeApp_categories', JSON.stringify(categories));
   }, [categories]);
 
+  // Save budgets to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('financeApp_budgets', JSON.stringify(budgets));
+  }, [budgets]);
+
   // Calculate balance summary
   const balanceSummary = calculateBalance(transactions);
+
+  // Update budget spent whenever transactions change
+  useEffect(() => {
+    if (budgets.length > 0) {
+      const updatedBudgets = budgets.map(budget => {
+        const spent = calculateSpentAmount(budget.categoryId, budget.month);
+        return {
+          ...budget,
+          spent,
+          lastUpdated: new Date().toISOString()
+        };
+      });
+      setBudgets(updatedBudgets);
+    }
+  }, [transactions]);
+
+  // Calculate how much was spent in a category for a specific month
+  const calculateSpentAmount = (categoryId: string, month: string) => {
+    return transactions
+      .filter(t => t.type === 'expense' && 
+                  t.category.id === categoryId && 
+                  t.date.startsWith(month))
+      .reduce((sum, t) => sum + t.amount, 0);
+  };
+
+  // Get current month string in format 'YYYY-MM'
+  const getCurrentMonth = () => {
+    return format(new Date(), 'yyyy-MM');
+  };
+
+  // Get budgets for current month
+  const getCurrentMonthBudgets = () => {
+    const currentMonth = getCurrentMonth();
+    return budgets.filter(b => b.month === currentMonth);
+  };
+
+  // Get budget progress as percentage
+  const getBudgetProgress = (budget: Budget) => {
+    if (budget.amount === 0) return 0;
+    return Math.min((budget.spent / budget.amount) * 100, 100);
+  };
+
+  // Add new budget
+  const addBudget = (budget: Omit<Budget, 'id' | 'spent' | 'lastUpdated'>) => {
+    // Check if budget for this category and month already exists
+    const existingBudget = getBudgetByCategoryId(budget.categoryId, budget.month);
+    
+    if (existingBudget) {
+      toast({
+        title: "Orçamento já existe",
+        description: "Já existe um orçamento para esta categoria neste mês.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    const spent = calculateSpentAmount(budget.categoryId, budget.month);
+    
+    const newBudget: Budget = {
+      ...budget,
+      id: Date.now().toString(),
+      spent,
+      lastUpdated: new Date().toISOString()
+    };
+    
+    setBudgets(prev => [...prev, newBudget]);
+    toast({
+      title: "Orçamento adicionado",
+      description: "Seu orçamento foi registrado com sucesso.",
+    });
+  };
+
+  // Update existing budget
+  const updateBudget = (id: string, budgetUpdate: Partial<Omit<Budget, 'id' | 'spent' | 'lastUpdated'>>) => {
+    setBudgets(prev => 
+      prev.map(b => {
+        if (b.id === id) {
+          const updatedBudget = { ...b, ...budgetUpdate, lastUpdated: new Date().toISOString() };
+          // Recalcular o gasto se o mês ou categoria mudou
+          if (budgetUpdate.month || budgetUpdate.categoryId) {
+            const monthToUse = budgetUpdate.month || b.month;
+            const categoryToUse = budgetUpdate.categoryId || b.categoryId;
+            updatedBudget.spent = calculateSpentAmount(categoryToUse, monthToUse);
+          }
+          return updatedBudget;
+        }
+        return b;
+      })
+    );
+    toast({
+      title: "Orçamento atualizado",
+      description: "As alterações foram salvas com sucesso.",
+    });
+  };
+
+  // Delete budget
+  const deleteBudget = (id: string) => {
+    setBudgets(prev => prev.filter(b => b.id !== id));
+    toast({
+      title: "Orçamento removido",
+      description: "O orçamento foi excluído com sucesso.",
+    });
+  };
+
+  // Get budget by category ID and month
+  const getBudgetByCategoryId = (categoryId: string, month: string): Budget | undefined => {
+    return budgets.find(b => b.categoryId === categoryId && b.month === month);
+  };
 
   // Add a new transaction
   const addTransaction = (transaction: Omit<Transaction, 'id'>) => {
@@ -180,6 +311,7 @@ export const TransactionProvider = ({ children }: TransactionProviderProps) => {
   const value = {
     transactions,
     categories,
+    budgets,
     balanceSummary,
     userName,
     setUserName,
@@ -190,7 +322,13 @@ export const TransactionProvider = ({ children }: TransactionProviderProps) => {
     getTransactionById,
     addCategory,
     editCategory,
-    deleteCategory
+    deleteCategory,
+    addBudget,
+    updateBudget,
+    deleteBudget,
+    getBudgetByCategoryId,
+    getCurrentMonthBudgets,
+    getBudgetProgress
   };
 
   return (

@@ -18,6 +18,15 @@ export type Transaction = {
   date: string;
 };
 
+export type Budget = {
+  id: string;
+  categoryId: string;
+  amount: number;
+  month: string; // formato 'YYYY-MM'
+  spent: number;
+  lastUpdated: string;
+};
+
 export type BalanceSummary = {
   totalIncome: number;
   totalExpenses: number;

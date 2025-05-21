@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { BalanceCard } from '../components/BalanceCard';
 import { QuickActions } from '../components/QuickActions';
 import { MonthSummary } from '../components/MonthSummary';
+import { BudgetSummary } from '../components/BudgetSummary';
 import { RecentTransactions } from '../components/RecentTransactions';
 import { BottomNavigation } from '../components/BottomNavigation';
 import { AddTransactionModal } from '../components/AddTransactionModal';
@@ -51,6 +52,8 @@ const Index = () => {
         />
         
         <MonthSummary />
+        
+        <BudgetSummary />
         
         <RecentTransactions />
 
