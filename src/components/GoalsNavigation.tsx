@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { Home, FileText, BarChart2, Settings, PieChart, Folder } from 'lucide-react';
+import { Home, FileText, BarChart2, Settings, PieChart, Target } from 'lucide-react';
 
 export const GoalsNavigation: React.FC = () => {
   const location = useLocation();
@@ -10,9 +10,9 @@ export const GoalsNavigation: React.FC = () => {
   const navItems = [
     { path: '/', icon: <Home size={20} />, label: 'Início' },
     { path: '/transactions', icon: <FileText size={20} />, label: 'Transações' },
-    { path: '/categories', icon: <Folder size={20} />, label: 'Categorias' },
-    { path: '/budgets', icon: <PieChart size={20} />, label: 'Orçamentos' },
-    { path: '/goals', icon: <BarChart2 size={20} />, label: 'Metas' },
+    { path: '/categories', icon: <PieChart size={20} />, label: 'Categorias' },
+    { path: '/budgets', icon: <BarChart2 size={20} />, label: 'Orçamentos' },
+    { path: '/goals', icon: <Target size={20} />, label: 'Metas' },
     { path: '/settings', icon: <Settings size={20} />, label: 'Ajustes' },
   ];
 
