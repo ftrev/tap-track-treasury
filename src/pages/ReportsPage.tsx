@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useTransactions } from '../contexts/TransactionContext';
 import { formatCurrency } from '../lib/utils';
@@ -184,15 +183,16 @@ const ReportsPage = () => {
                           content={({ payload }) => {
                             if (payload && payload.length > 0) {
                               const item = payload[0];
+                              const value = typeof item.value === 'number' ? item.value : 0;
                               return (
                                 <div className="bg-white dark:bg-gray-800 p-2 rounded-md shadow-md border border-gray-200 dark:border-gray-700">
                                   <p className="flex items-center gap-2">
                                     <span>{item.payload.icon}</span>
                                     <span>{item.name}</span>
                                   </p>
-                                  <p className="text-sm font-medium">{formatCurrency(item.value)}</p>
+                                  <p className="text-sm font-medium">{formatCurrency(value)}</p>
                                   <p className="text-xs text-gray-500">
-                                    {Math.round((item.value / totalExpenses) * 100)}%
+                                    {Math.round((value / totalExpenses) * 100)}%
                                   </p>
                                 </div>
                               );
@@ -259,16 +259,19 @@ const ReportsPage = () => {
                           return (
                             <div className="bg-white dark:bg-gray-800 p-3 rounded-md shadow-md border border-gray-200 dark:border-gray-700">
                               <p className="text-sm font-bold mb-2">{label}</p>
-                              {payload.map((entry, index) => (
-                                <div key={index} className="flex justify-between items-center mb-1">
-                                  <span className="text-sm capitalize" style={{ color: entry.color }}>
-                                    {entry.name}:
-                                  </span>
-                                  <span className="text-sm font-medium ml-4">
-                                    {formatCurrency(entry.value)}
-                                  </span>
-                                </div>
-                              ))}
+                              {payload.map((entry, index) => {
+                                const value = typeof entry.value === 'number' ? entry.value : 0;
+                                return (
+                                  <div key={index} className="flex justify-between items-center mb-1">
+                                    <span className="text-sm capitalize" style={{ color: entry.color }}>
+                                      {entry.name}:
+                                    </span>
+                                    <span className="text-sm font-medium ml-4">
+                                      {formatCurrency(value)}
+                                    </span>
+                                  </div>
+                                );
+                              })}
                             </div>
                           );
                         }
@@ -334,10 +337,11 @@ const ReportsPage = () => {
                       <Tooltip
                         content={({ payload, label }) => {
                           if (payload && payload.length > 0) {
+                            const value = typeof payload[0].value === 'number' ? payload[0].value : 0;
                             return (
                               <div className="bg-white dark:bg-gray-800 p-2 rounded-md shadow-md border border-gray-200 dark:border-gray-700">
                                 <p className="text-xs mb-1">Dia {label}</p>
-                                <p className="text-sm font-medium">{formatCurrency(payload[0].value)}</p>
+                                <p className="text-sm font-medium">{formatCurrency(value)}</p>
                               </div>
                             );
                           }
