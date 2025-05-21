@@ -1,11 +1,11 @@
 
 import React, { useState } from 'react';
 import { useTransactions } from '../contexts/TransactionContext';
-import { formatCurrency, formatDate, groupTransactionsByDate } from '../data/mockData';
+import { formatDate, groupTransactionsByDate } from '../data/mockData';
 import { BottomNavigation } from '../components/BottomNavigation';
-import { Transaction } from '../types';
 import { ChevronLeft, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { TransactionItem } from '../components/TransactionItem';
 
 const TransactionsPage = () => {
   const { transactions } = useTransactions();
@@ -25,32 +25,6 @@ const TransactionsPage = () => {
   const sortedDates = Object.keys(groupedTransactions).sort((a, b) => 
     new Date(b).getTime() - new Date(a).getTime()
   );
-  
-  const renderTransactionItem = (transaction: Transaction) => {
-    const { category, amount, description, date, type } = transaction;
-    
-    return (
-      <div key={transaction.id} className="transaction-item">
-        <div className="flex items-center">
-          <div className="w-10 h-10 rounded-full flex items-center justify-center mr-3"
-               style={{ backgroundColor: type === 'expense' ? '#FFEBE5' : 
-                                        type === 'income' ? '#E3F9ED' : '#E1F5FA' }}>
-            <span className="text-lg">{category.icon}</span>
-          </div>
-          <div>
-            <div className="font-medium text-finance-text">{description || category.name}</div>
-            <div className="text-xs text-gray-500">{formatDate(date)}</div>
-          </div>
-        </div>
-        <div className={`font-semibold ${
-          type === 'expense' ? 'text-finance-alert' : 
-          type === 'income' ? 'text-finance-secondary' : 'text-finance-primary'
-        }`}>
-          {type === 'expense' ? '-' : type === 'income' ? '+' : ''}{formatCurrency(amount)}
-        </div>
-      </div>
-    );
-  };
 
   return (
     <div className="min-h-screen bg-finance-backgroundAlt pb-16">
@@ -91,9 +65,9 @@ const TransactionsPage = () => {
                   })}
                 </div>
                 
-                <div className="space-y-2">
+                <div className="space-y-1">
                   {groupedTransactions[date].map(transaction => 
-                    renderTransactionItem(transaction)
+                    <TransactionItem key={transaction.id} transaction={transaction} />
                   )}
                 </div>
               </div>

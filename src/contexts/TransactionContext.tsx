@@ -14,6 +14,7 @@ type TransactionContextType = {
   deleteTransaction: (id: string) => void;
   editTransaction: (id: string, transaction: Omit<Transaction, 'id'>) => void;
   getCategoriesByType: (type: TransactionType) => CategoryType[];
+  getTransactionById: (id: string) => Transaction | undefined;
 };
 
 const TransactionContext = createContext<TransactionContextType | undefined>(undefined);
@@ -35,7 +36,7 @@ export const TransactionProvider = ({ children }: TransactionProviderProps) => {
   const [userName, setUserName] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Load user data from localStorage on initial load
+  // Load user data and transactions from localStorage on initial load
   useEffect(() => {
     const savedUser = localStorage.getItem('financeApp_user');
     if (savedUser) {
@@ -46,7 +47,21 @@ export const TransactionProvider = ({ children }: TransactionProviderProps) => {
         console.error('Error parsing saved user data:', error);
       }
     }
+
+    const savedTransactions = localStorage.getItem('financeApp_transactions');
+    if (savedTransactions) {
+      try {
+        setTransactions(JSON.parse(savedTransactions));
+      } catch (error) {
+        console.error('Error parsing saved transactions:', error);
+      }
+    }
   }, []);
+
+  // Save transactions to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('financeApp_transactions', JSON.stringify(transactions));
+  }, [transactions]);
 
   // Calculate balance summary
   const balanceSummary = calculateBalance(transactions);
@@ -63,6 +78,11 @@ export const TransactionProvider = ({ children }: TransactionProviderProps) => {
       title: "Transação adicionada",
       description: "Sua transação foi registrada com sucesso.",
     });
+  };
+
+  // Get a transaction by ID
+  const getTransactionById = (id: string) => {
+    return transactions.find(t => t.id === id);
   };
 
   // Delete a transaction
@@ -100,6 +120,7 @@ export const TransactionProvider = ({ children }: TransactionProviderProps) => {
     deleteTransaction,
     editTransaction,
     getCategoriesByType,
+    getTransactionById,
   };
 
   return (

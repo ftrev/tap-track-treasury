@@ -34,10 +34,10 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-finance-backgroundAlt pb-16">
+    <div className="min-h-screen bg-finance-backgroundAlt dark:bg-gray-900 pb-16">
       <div className="container px-4 py-6 max-w-md mx-auto">
         <header className="mb-4">
-          <h1 className="text-xl font-semibold text-finance-text">
+          <h1 className="text-xl font-semibold text-finance-text dark:text-white">
             Olá, {userName || 'Visitante'}
           </h1>
         </header>
@@ -56,7 +56,7 @@ const Index = () => {
 
         {/* Floating Action Button */}
         <button 
-          className="fab"
+          className="fab bg-finance-primary hover:bg-finance-primary/90 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg fixed bottom-20 right-6"
           onClick={() => handleAddTransaction('expense')}
           aria-label="Adicionar transação"
         >
