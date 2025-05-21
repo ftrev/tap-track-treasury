@@ -2,18 +2,12 @@
 import React, { useState } from 'react';
 import { Layout } from '../components/Layout';
 import { FinancialPlanForm } from '../components/FinancialPlanForm';
-import { GoalItem } from '../components/GoalItem';
 import { ContributeGoalModal } from '../components/ContributeGoalModal';
+import { FinancialPlanTabs } from '../components/FinancialPlanTabs';
 import { useTransactions } from '../contexts/TransactionContext';
 import { FinancialGoal } from '../types';
 import { PlusCircle } from 'lucide-react';
 import { Button } from '../components/ui/button';
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '../components/ui/tabs';
 import {
   Card,
   CardContent,
@@ -34,7 +28,7 @@ import {
 import { useToast } from '../hooks/use-toast';
 
 const FinancialPlanningPage = () => {
-  const { financialGoals, updateFinancialGoal, deleteFinancialGoal, contributeToGoal } = useTransactions();
+  const { financialGoals, deleteFinancialGoal, contributeToGoal } = useTransactions();
   const { toast } = useToast();
   const [showForm, setShowForm] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<FinancialGoal | undefined>(undefined);
@@ -120,106 +114,16 @@ const FinancialPlanningPage = () => {
         </Card>
       )}
 
-      <Tabs defaultValue="short" className="w-full">
-        <TabsList className="mb-4 grid grid-cols-3 w-full">
-          <TabsTrigger value="short" className="flex-1">
-            Curto prazo {shortTermGoals.length > 0 && <span className="ml-1 text-xs bg-blue-100 text-blue-700 rounded-full px-2">{shortTermGoals.length}</span>}
-          </TabsTrigger>
-          <TabsTrigger value="medium" className="flex-1">
-            Médio prazo {mediumTermGoals.length > 0 && <span className="ml-1 text-xs bg-blue-100 text-blue-700 rounded-full px-2">{mediumTermGoals.length}</span>}
-          </TabsTrigger>
-          <TabsTrigger value="long" className="flex-1">
-            Longo prazo {longTermGoals.length > 0 && <span className="ml-1 text-xs bg-blue-100 text-blue-700 rounded-full px-2">{longTermGoals.length}</span>}
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="short">
-          {shortTermGoals.length > 0 ? (
-            <div className="space-y-4">
-              {shortTermGoals.map(goal => (
-                <GoalItem
-                  key={goal.id}
-                  goal={goal}
-                  onEdit={handleEditGoal}
-                  onDelete={handleDeleteGoal}
-                  onContribute={handleContributeToGoal}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-10 text-gray-500">
-              <p>Você não tem planos de curto prazo.</p>
-              {!showForm && (
-                <Button 
-                  variant="outline" 
-                  onClick={() => setShowForm(true)}
-                  className="mt-4"
-                >
-                  Criar um plano de curto prazo
-                </Button>
-              )}
-            </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="medium">
-          {mediumTermGoals.length > 0 ? (
-            <div className="space-y-4">
-              {mediumTermGoals.map(goal => (
-                <GoalItem
-                  key={goal.id}
-                  goal={goal}
-                  onEdit={handleEditGoal}
-                  onDelete={handleDeleteGoal}
-                  onContribute={handleContributeToGoal}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-10 text-gray-500">
-              <p>Você não tem planos de médio prazo.</p>
-              {!showForm && (
-                <Button 
-                  variant="outline" 
-                  onClick={() => setShowForm(true)}
-                  className="mt-4"
-                >
-                  Criar um plano de médio prazo
-                </Button>
-              )}
-            </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="long">
-          {longTermGoals.length > 0 ? (
-            <div className="space-y-4">
-              {longTermGoals.map(goal => (
-                <GoalItem
-                  key={goal.id}
-                  goal={goal}
-                  onEdit={handleEditGoal}
-                  onDelete={handleDeleteGoal}
-                  onContribute={handleContributeToGoal}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-10 text-gray-500">
-              <p>Você não tem planos de longo prazo.</p>
-              {!showForm && (
-                <Button 
-                  variant="outline" 
-                  onClick={() => setShowForm(true)}
-                  className="mt-4"
-                >
-                  Criar um plano de longo prazo
-                </Button>
-              )}
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
+      <FinancialPlanTabs 
+        shortTermGoals={shortTermGoals}
+        mediumTermGoals={mediumTermGoals}
+        longTermGoals={longTermGoals}
+        onEditGoal={handleEditGoal}
+        onDeleteGoal={handleDeleteGoal}
+        onContributeToGoal={handleContributeToGoal}
+        onShowForm={() => setShowForm(true)}
+        showForm={showForm}
+      />
 
       <ContributeGoalModal
         isOpen={isContributeModalOpen}
