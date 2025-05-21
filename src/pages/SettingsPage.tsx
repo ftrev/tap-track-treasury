@@ -1,11 +1,32 @@
 
 import React from 'react';
 import { BottomNavigation } from '../components/BottomNavigation';
-import { ChevronLeft, ChevronRight, Bell, Lock, HelpCircle, Info } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Bell, Lock, HelpCircle, Info, LogOut, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTransactions } from '../contexts/TransactionContext';
+import { useToast } from "../hooks/use-toast";
 
 const SettingsPage = () => {
   const navigate = useNavigate();
+  const { userName, setUserName } = useTransactions();
+  const { toast } = useToast();
+
+  const handleLogout = () => {
+    // Clear localStorage
+    localStorage.removeItem('financeApp_user');
+    
+    // Reset user in context
+    setUserName('');
+    
+    // Show toast
+    toast({
+      title: "Logout realizado",
+      description: "Você saiu da sua conta com sucesso.",
+    });
+    
+    // Navigate to home
+    navigate('/');
+  };
 
   const SettingItem = ({ icon, title, onClick }: { icon: React.ReactNode, title: string, onClick: () => void }) => (
     <button 
@@ -37,13 +58,23 @@ const SettingsPage = () => {
         <div className="bg-white rounded-2xl p-4 shadow-md mb-4">
           <div className="flex items-center mb-4 pb-3 border-b border-gray-100">
             <div className="w-12 h-12 rounded-full bg-finance-primary flex items-center justify-center text-white font-bold">
-              U
+              {userName ? userName[0].toUpperCase() : 'U'}
             </div>
             <div className="ml-3">
-              <div className="font-medium">Usuário</div>
-              <div className="text-sm text-gray-500">usuario@email.com</div>
+              <div className="font-medium">{userName || 'Visitante'}</div>
+              <div className="text-sm text-gray-500">
+                {localStorage.getItem('financeApp_user') 
+                  ? JSON.parse(localStorage.getItem('financeApp_user') || '{}').email || 'usuario@email.com'
+                  : 'Usuário não registrado'}
+              </div>
             </div>
           </div>
+          
+          <SettingItem 
+            icon={<User size={20} className="text-finance-primary" />}
+            title="Perfil"
+            onClick={() => {}}
+          />
           
           <SettingItem 
             icon={<Bell size={20} className="text-finance-primary" />}
@@ -71,7 +102,11 @@ const SettingsPage = () => {
         </div>
         
         <div className="bg-white rounded-2xl p-4 shadow-md">
-          <button className="w-full py-2 text-center text-finance-alert">
+          <button 
+            className="w-full py-2 text-center text-finance-alert flex items-center justify-center"
+            onClick={handleLogout}
+          >
+            <LogOut size={18} className="mr-2" />
             Sair
           </button>
         </div>

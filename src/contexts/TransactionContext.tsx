@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { Transaction, CategoryType, BalanceSummary, TransactionType } from '../types';
 import { mockTransactions, categories, calculateBalance } from '../data/mockData';
 import { useToast } from "../hooks/use-toast";
@@ -8,6 +8,8 @@ type TransactionContextType = {
   transactions: Transaction[];
   categories: CategoryType[];
   balanceSummary: BalanceSummary;
+  userName: string | null;
+  setUserName: (name: string) => void;
   addTransaction: (transaction: Omit<Transaction, 'id'>) => void;
   deleteTransaction: (id: string) => void;
   editTransaction: (id: string, transaction: Omit<Transaction, 'id'>) => void;
@@ -30,7 +32,21 @@ type TransactionProviderProps = {
 
 export const TransactionProvider = ({ children }: TransactionProviderProps) => {
   const [transactions, setTransactions] = useState<Transaction[]>(mockTransactions);
+  const [userName, setUserName] = useState<string | null>(null);
   const { toast } = useToast();
+
+  // Load user data from localStorage on initial load
+  useEffect(() => {
+    const savedUser = localStorage.getItem('financeApp_user');
+    if (savedUser) {
+      try {
+        const userData = JSON.parse(savedUser);
+        setUserName(userData.name);
+      } catch (error) {
+        console.error('Error parsing saved user data:', error);
+      }
+    }
+  }, []);
 
   // Calculate balance summary
   const balanceSummary = calculateBalance(transactions);
@@ -78,6 +94,8 @@ export const TransactionProvider = ({ children }: TransactionProviderProps) => {
     transactions,
     categories,
     balanceSummary,
+    userName,
+    setUserName,
     addTransaction,
     deleteTransaction,
     editTransaction,
