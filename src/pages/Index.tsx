@@ -4,6 +4,7 @@ import { BalanceCard } from '../components/BalanceCard';
 import { QuickActions } from '../components/QuickActions';
 import { MonthSummary } from '../components/MonthSummary';
 import { BudgetSummary } from '../components/BudgetSummary';
+import { GoalsSummary } from '../components/GoalsSummary';
 import { RecentTransactions } from '../components/RecentTransactions';
 import { BottomNavigation } from '../components/BottomNavigation';
 import { AddTransactionModal } from '../components/AddTransactionModal';
@@ -54,6 +55,8 @@ const Index = () => {
         <MonthSummary />
         
         <BudgetSummary />
+        
+        <GoalsSummary />
         
         <RecentTransactions />
 

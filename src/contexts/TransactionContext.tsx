@@ -1,5 +1,6 @@
+
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { Transaction, CategoryType, BalanceSummary, TransactionType, Budget } from '../types';
+import { Transaction, CategoryType, BalanceSummary, TransactionType, Budget, FinancialGoal } from '../types';
 import { mockTransactions, categories as defaultCategories, calculateBalance } from '../data/mockData';
 import { useToast } from "../hooks/use-toast";
 import { format } from "date-fns";
@@ -9,6 +10,7 @@ type TransactionContextType = {
   transactions: Transaction[];
   categories: CategoryType[];
   budgets: Budget[];
+  financialGoals: FinancialGoal[];
   balanceSummary: BalanceSummary;
   userName: string | null;
   setUserName: (name: string) => void;
@@ -26,6 +28,13 @@ type TransactionContextType = {
   getBudgetByCategoryId: (categoryId: string, month: string) => Budget | undefined;
   getCurrentMonthBudgets: () => Budget[];
   getBudgetProgress: (budget: Budget) => number;
+  // Financial Goals methods
+  addFinancialGoal: (goal: Omit<FinancialGoal, 'id'>) => void;
+  updateFinancialGoal: (id: string, goal: Partial<Omit<FinancialGoal, 'id'>>) => void;
+  deleteFinancialGoal: (id: string) => void;
+  contributeToGoal: (id: string, amount: number) => void;
+  completeGoal: (id: string) => void;
+  cancelGoal: (id: string) => void;
 };
 
 const TransactionContext = createContext<TransactionContextType | undefined>(undefined);
@@ -46,10 +55,11 @@ export const TransactionProvider = ({ children }: TransactionProviderProps) => {
   const [transactions, setTransactions] = useState<Transaction[]>(mockTransactions);
   const [categories, setCategories] = useState<CategoryType[]>(defaultCategories);
   const [budgets, setBudgets] = useState<Budget[]>([]);
+  const [financialGoals, setFinancialGoals] = useState<FinancialGoal[]>([]);
   const [userName, setUserName] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Load user data, transactions, and categories from localStorage on initial load
+  // Load user data, transactions, categories, budgets, and goals from localStorage on initial load
   useEffect(() => {
     const savedUser = localStorage.getItem('financeApp_user');
     if (savedUser) {
@@ -89,6 +99,15 @@ export const TransactionProvider = ({ children }: TransactionProviderProps) => {
         console.error('Error parsing saved budgets:', error);
       }
     }
+
+    const savedGoals = localStorage.getItem('financeApp_goals');
+    if (savedGoals) {
+      try {
+        setFinancialGoals(JSON.parse(savedGoals));
+      } catch (error) {
+        console.error('Error parsing saved goals:', error);
+      }
+    }
   }, []);
 
   // Save transactions to localStorage whenever they change
@@ -105,6 +124,11 @@ export const TransactionProvider = ({ children }: TransactionProviderProps) => {
   useEffect(() => {
     localStorage.setItem('financeApp_budgets', JSON.stringify(budgets));
   }, [budgets]);
+
+  // Save financial goals to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('financeApp_goals', JSON.stringify(financialGoals));
+  }, [financialGoals]);
 
   // Calculate balance summary
   const balanceSummary = calculateBalance(transactions);
@@ -308,10 +332,90 @@ export const TransactionProvider = ({ children }: TransactionProviderProps) => {
     return true;
   };
 
+  // Add a new financial goal
+  const addFinancialGoal = (goal: Omit<FinancialGoal, 'id'>) => {
+    const newGoal: FinancialGoal = {
+      ...goal,
+      id: Date.now().toString()
+    };
+    
+    setFinancialGoals(prev => [...prev, newGoal]);
+    toast({
+      title: "Meta criada",
+      description: "Sua meta financeira foi criada com sucesso.",
+    });
+  };
+
+  // Update existing financial goal
+  const updateFinancialGoal = (id: string, goalUpdate: Partial<Omit<FinancialGoal, 'id'>>) => {
+    setFinancialGoals(prev => 
+      prev.map(g => g.id === id ? { ...g, ...goalUpdate } : g)
+    );
+    toast({
+      title: "Meta atualizada",
+      description: "As alterações foram salvas com sucesso.",
+    });
+  };
+
+  // Delete financial goal
+  const deleteFinancialGoal = (id: string) => {
+    setFinancialGoals(prev => prev.filter(g => g.id !== id));
+    toast({
+      title: "Meta removida",
+      description: "A meta financeira foi removida com sucesso.",
+    });
+  };
+
+  // Add contribution to a goal
+  const contributeToGoal = (id: string, amount: number) => {
+    setFinancialGoals(prev => 
+      prev.map(g => {
+        if (g.id === id) {
+          const updatedAmount = g.currentAmount + amount;
+          const isCompleted = updatedAmount >= g.targetAmount;
+          
+          return {
+            ...g,
+            currentAmount: updatedAmount,
+            status: isCompleted ? 'completed' : g.status
+          };
+        }
+        return g;
+      })
+    );
+    toast({
+      title: "Contribuição adicionada",
+      description: `Você contribuiu com ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(amount)} para sua meta.`,
+    });
+  };
+
+  // Mark a goal as completed
+  const completeGoal = (id: string) => {
+    setFinancialGoals(prev => 
+      prev.map(g => g.id === id ? { ...g, status: 'completed' } : g)
+    );
+    toast({
+      title: "Meta concluída",
+      description: "Parabéns! Sua meta foi marcada como concluída.",
+    });
+  };
+
+  // Cancel a goal
+  const cancelGoal = (id: string) => {
+    setFinancialGoals(prev => 
+      prev.map(g => g.id === id ? { ...g, status: 'cancelled' } : g)
+    );
+    toast({
+      title: "Meta cancelada",
+      description: "A meta foi cancelada.",
+    });
+  };
+
   const value = {
     transactions,
     categories,
     budgets,
+    financialGoals,
     balanceSummary,
     userName,
     setUserName,
@@ -328,7 +432,13 @@ export const TransactionProvider = ({ children }: TransactionProviderProps) => {
     deleteBudget,
     getBudgetByCategoryId,
     getCurrentMonthBudgets,
-    getBudgetProgress
+    getBudgetProgress,
+    addFinancialGoal,
+    updateFinancialGoal,
+    deleteFinancialGoal,
+    contributeToGoal,
+    completeGoal,
+    cancelGoal
   };
 
   return (

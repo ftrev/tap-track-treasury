@@ -32,3 +32,18 @@ export type BalanceSummary = {
   totalExpenses: number;
   currentBalance: number;
 };
+
+export type FinancialGoalStatus = 'active' | 'completed' | 'cancelled';
+
+export type FinancialGoal = {
+  id: string;
+  name: string;
+  targetAmount: number;
+  currentAmount: number;
+  targetDate?: string;
+  startDate: string;
+  iconName: string;
+  color?: string;
+  status: FinancialGoalStatus;
+  description?: string;
+};
