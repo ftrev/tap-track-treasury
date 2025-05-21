@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { Transaction, CategoryType, BalanceSummary, TransactionType } from '../types';
-import { mockTransactions, categories, calculateBalance } from '../data/mockData';
+import { mockTransactions, categories as defaultCategories, calculateBalance } from '../data/mockData';
 import { useToast } from "../hooks/use-toast";
 
 type TransactionContextType = {
@@ -15,6 +15,9 @@ type TransactionContextType = {
   editTransaction: (id: string, transaction: Omit<Transaction, 'id'>) => void;
   getCategoriesByType: (type: TransactionType) => CategoryType[];
   getTransactionById: (id: string) => Transaction | undefined;
+  addCategory: (category: Omit<CategoryType, 'id'>) => void;
+  editCategory: (id: string, category: Omit<CategoryType, 'id'>) => void;
+  deleteCategory: (id: string) => boolean;
 };
 
 const TransactionContext = createContext<TransactionContextType | undefined>(undefined);
@@ -33,10 +36,11 @@ type TransactionProviderProps = {
 
 export const TransactionProvider = ({ children }: TransactionProviderProps) => {
   const [transactions, setTransactions] = useState<Transaction[]>(mockTransactions);
+  const [categories, setCategories] = useState<CategoryType[]>(defaultCategories);
   const [userName, setUserName] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Load user data and transactions from localStorage on initial load
+  // Load user data, transactions, and categories from localStorage on initial load
   useEffect(() => {
     const savedUser = localStorage.getItem('financeApp_user');
     if (savedUser) {
@@ -56,12 +60,28 @@ export const TransactionProvider = ({ children }: TransactionProviderProps) => {
         console.error('Error parsing saved transactions:', error);
       }
     }
+
+    const savedCategories = localStorage.getItem('financeApp_categories');
+    if (savedCategories) {
+      try {
+        setCategories(JSON.parse(savedCategories));
+      } catch (error) {
+        console.error('Error parsing saved categories:', error);
+        // If there's an error loading saved categories, use the default ones
+        setCategories(defaultCategories);
+      }
+    }
   }, []);
 
   // Save transactions to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem('financeApp_transactions', JSON.stringify(transactions));
   }, [transactions]);
+
+  // Save categories to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('financeApp_categories', JSON.stringify(categories));
+  }, [categories]);
 
   // Calculate balance summary
   const balanceSummary = calculateBalance(transactions);
@@ -110,6 +130,53 @@ export const TransactionProvider = ({ children }: TransactionProviderProps) => {
     return categories.filter(c => c.type === type);
   };
 
+  // Add a new category
+  const addCategory = (category: Omit<CategoryType, 'id'>) => {
+    const newCategory = {
+      ...category,
+      id: Date.now().toString()
+    };
+    
+    setCategories(prev => [...prev, newCategory]);
+    toast({
+      title: "Categoria adicionada",
+      description: "A categoria foi adicionada com sucesso.",
+    });
+  };
+
+  // Edit a category
+  const editCategory = (id: string, category: Omit<CategoryType, 'id'>) => {
+    setCategories(prev => 
+      prev.map(c => c.id === id ? { ...category, id } : c)
+    );
+    toast({
+      title: "Categoria atualizada",
+      description: "As alterações foram salvas com sucesso.",
+    });
+  };
+
+  // Delete a category
+  const deleteCategory = (id: string) => {
+    // Check if there are transactions using this category
+    const hasTransactions = transactions.some(t => t.category.id === id);
+    
+    if (hasTransactions) {
+      toast({
+        title: "Operação não permitida",
+        description: "Existem transações usando esta categoria. Edite ou exclua essas transações primeiro.",
+        variant: "destructive"
+      });
+      return false;
+    }
+    
+    setCategories(prev => prev.filter(c => c.id !== id));
+    toast({
+      title: "Categoria removida",
+      description: "A categoria foi excluída com sucesso.",
+    });
+    return true;
+  };
+
   const value = {
     transactions,
     categories,
@@ -121,6 +188,9 @@ export const TransactionProvider = ({ children }: TransactionProviderProps) => {
     editTransaction,
     getCategoriesByType,
     getTransactionById,
+    addCategory,
+    editCategory,
+    deleteCategory
   };
 
   return (

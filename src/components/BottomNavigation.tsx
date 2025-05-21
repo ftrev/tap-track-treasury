@@ -1,43 +1,45 @@
 
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, List, BarChart, Settings, Plus } from 'lucide-react';
+import { NavLink, useLocation } from 'react-router-dom';
+import { Home, BarChart2, Settings, Wallet, Tags } from 'lucide-react';
 
-export function BottomNavigation() {
-  const navigate = useNavigate();
+export const BottomNavigation = () => {
   const location = useLocation();
   const currentPath = location.pathname;
-  
+
   const getNavItemClass = (path: string) => {
-    const baseClass = "flex flex-col items-center py-1";
+    const baseClass = "flex flex-1 flex-col items-center justify-center py-2 text-xs font-medium";
     return `${baseClass} ${currentPath === path ? 'text-finance-primary' : 'text-gray-500'}`;
   };
-  
+
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around py-2 z-10">
-      <button onClick={() => navigate('/')} className={getNavItemClass('/')}>
-        <Home size={20} />
-        <span className="text-xs mt-1">Home</span>
-      </button>
-      <button onClick={() => navigate('/transactions')} className={getNavItemClass('/transactions')}>
-        <List size={20} />
-        <span className="text-xs mt-1">Transações</span>
-      </button>
-      {/* Center Add Button (placeholder) */}
-      <div className="invisible">
-        <div className="flex flex-col items-center">
-          <Plus size={20} />
-          <span className="text-xs mt-1">Adicionar</span>
-        </div>
+    <div className="fixed inset-x-0 bottom-0 z-10 bg-white border-t border-gray-200 dark:border-gray-800 dark:bg-gray-950 shadow-lg">
+      <div className="flex h-16 max-w-md mx-auto">
+        <NavLink to="/" className={getNavItemClass('/')}>
+          <Home strokeWidth={1.5} className="h-6 w-6 mb-1" />
+          <span>Início</span>
+        </NavLink>
+        
+        <NavLink to="/transactions" className={getNavItemClass('/transactions')}>
+          <Wallet strokeWidth={1.5} className="h-6 w-6 mb-1" />
+          <span>Transações</span>
+        </NavLink>
+
+        <NavLink to="/categories" className={getNavItemClass('/categories')}>
+          <Tags strokeWidth={1.5} className="h-6 w-6 mb-1" />
+          <span>Categorias</span>
+        </NavLink>
+        
+        <NavLink to="/reports" className={getNavItemClass('/reports')}>
+          <BarChart2 strokeWidth={1.5} className="h-6 w-6 mb-1" />
+          <span>Relatórios</span>
+        </NavLink>
+        
+        <NavLink to="/settings" className={getNavItemClass('/settings')}>
+          <Settings strokeWidth={1.5} className="h-6 w-6 mb-1" />
+          <span>Ajustes</span>
+        </NavLink>
       </div>
-      <button onClick={() => navigate('/reports')} className={getNavItemClass('/reports')}>
-        <BarChart size={20} />
-        <span className="text-xs mt-1">Relatórios</span>
-      </button>
-      <button onClick={() => navigate('/settings')} className={getNavItemClass('/settings')}>
-        <Settings size={20} />
-        <span className="text-xs mt-1">Mais</span>
-      </button>
     </div>
   );
-}
+};
