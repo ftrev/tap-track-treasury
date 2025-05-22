@@ -12,7 +12,12 @@ export const Layout: React.FC<LayoutProps> = ({ children, title }) => {
   const isMobile = useIsMobile();
   
   return (
-    <div className="max-w-md mx-auto pb-20">
+    <div className="max-w-md mx-auto pb-20" style={{ 
+      height: '100%',
+      minHeight: '100vh',
+      maxHeight: '-webkit-fill-available',
+      WebkitOverflowScrolling: 'touch'
+    }}>
       <div className="px-4 py-6">
         {title && (
           <h1 className="text-2xl font-bold mb-6 text-finance-text">{title}</h1>
