@@ -9,10 +9,12 @@ import { RecentTransactions } from '../components/RecentTransactions';
 import { BottomNavigation } from '../components/BottomNavigation';
 import { AddTransactionModal } from '../components/AddTransactionModal';
 import { UserRegistrationModal } from '../components/UserRegistrationModal';
-import { Plus } from 'lucide-react';
+import { Plus, LogOut } from 'lucide-react';
 import { TransactionType } from '../types';
 import { useTransactions } from '../contexts/TransactionContext';
 import { useToast } from "../hooks/use-toast";
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
 
 const Index = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -33,6 +35,23 @@ const Index = () => {
     }
   }, [userName]);
 
+  const handleSignOut = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast({
+        title: "Desconectado",
+        description: "Você foi desconectado com sucesso.",
+      });
+      // The session change will be picked up by the auth context
+    } catch (error: any) {
+      toast({
+        title: "Erro ao desconectar",
+        description: error.message || "Ocorreu um erro ao tentar desconectar.",
+        variant: "destructive"
+      });
+    }
+  };
+
   const handleAddTransaction = (type: TransactionType) => {
     // Don't open transaction modal if user registration is not completed
     if (!userName) {
@@ -51,10 +70,22 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-finance-backgroundAlt dark:bg-gray-900 pb-16">
       <div className="container px-4 py-6 max-w-md mx-auto">
-        <header className="mb-4">
+        <header className="mb-4 flex items-center justify-between">
           <h1 className="text-xl font-semibold text-finance-text dark:text-white">
             Olá, {userName || 'Visitante'}
           </h1>
+          
+          {userName && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleSignOut}
+              className="flex items-center gap-1"
+            >
+              <LogOut size={16} />
+              <span className="hidden sm:inline">Sair</span>
+            </Button>
+          )}
         </header>
 
         <BalanceCard />

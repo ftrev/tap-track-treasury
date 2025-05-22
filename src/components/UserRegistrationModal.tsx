@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useToast } from "../hooks/use-toast";
 import { useTransactions } from '../contexts/TransactionContext';
+import { supabase } from '@/integrations/supabase/client';
 
 type UserRegistrationModalProps = {
   isOpen: boolean;
@@ -14,14 +15,14 @@ type UserRegistrationModalProps = {
 };
 
 export function UserRegistrationModal({ isOpen, onClose }: UserRegistrationModalProps) {
-  const [name, setName] = React.useState('');
-  const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { setUserName } = useTransactions();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!name.trim()) {
@@ -32,24 +33,49 @@ export function UserRegistrationModal({ isOpen, onClose }: UserRegistrationModal
       });
       return;
     }
+
+    if (!email.trim() || !password.trim()) {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Por favor, preencha o email e a senha para continuar.",
+        variant: "destructive"
+      });
+      return;
+    }
     
     setIsLoading(true);
     
-    // Simulate API call - in the future, this would be an actual API call
-    setTimeout(() => {
-      // Store in localStorage for persistence
-      localStorage.setItem('financeApp_user', JSON.stringify({ name, email }));
+    try {
+      // Sign up with Supabase
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name
+          }
+        }
+      });
+
+      if (error) throw error;
       
       // Update global state
       setUserName(name);
       
-      setIsLoading(false);
       toast({
         title: "Conta criada com sucesso!",
         description: "Bem-vindo ao app de controle financeiro.",
       });
       onClose();
-    }, 1000);
+    } catch (error: any) {
+      toast({
+        title: "Erro ao criar conta",
+        description: error.message || "Ocorreu um erro ao tentar criar sua conta.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
