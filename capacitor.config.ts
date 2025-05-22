@@ -3,7 +3,7 @@ import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'app.lovable.b4c725bd80914a9c91bae643bc0bb0f0',
-  appName: 'tap-track-treasury',
+  appName: 'Money Flow',
   webDir: 'dist',
   server: {
     url: 'https://b4c725bd-8091-4a9c-91ba-e643bc0bb0f0.lovableproject.com?forceHideBadge=true',
@@ -18,3 +18,13 @@ const config: CapacitorConfig = {
 };
 
 export default config;
+{
+  "icon": {
+    "android": "C:\Users\pimpa\OneDrive\Documentos\MoneyFlow\MoneyFlow.png",
+    "ios": "C:\Users\pimpa\OneDrive\Documentos\MoneyFlow\MoneyFlow.png"
+  },
+  "splash": {
+    "android": "C:\Users\pimpa\OneDrive\Documentos\MoneyFlow\MoneyFlow.png",
+    "ios": "C:\Users\pimpa\OneDrive\Documentos\MoneyFlow\MoneyFlow.png"
+  }
+}

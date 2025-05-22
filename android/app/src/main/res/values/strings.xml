@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">tap-track-treasury</string>
+    <string name="title_activity_main">tap-track-treasury</string>
+    <string name="package_name">app.lovable.b4c725bd80914a9c91bae643bc0bb0f0</string>
+    <string name="custom_url_scheme">app.lovable.b4c725bd80914a9c91bae643bc0bb0f0</string>
+</resources>
