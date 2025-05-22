@@ -34,6 +34,16 @@ const Index = () => {
   }, [userName]);
 
   const handleAddTransaction = (type: TransactionType) => {
+    // Don't open transaction modal if user registration is not completed
+    if (!userName) {
+      toast({
+        title: "Registro necessário",
+        description: "Por favor, complete o registro para adicionar transações.",
+      });
+      setIsUserModalOpen(true);
+      return;
+    }
+    
     setTransactionType(type);
     setIsModalOpen(true);
   };

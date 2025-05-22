@@ -23,9 +23,19 @@ export function UserRegistrationModal({ isOpen, onClose }: UserRegistrationModal
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!name.trim()) {
+      toast({
+        title: "Nome obrigatório",
+        description: "Por favor, informe seu nome para continuar.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setIsLoading(true);
     
-    // Simulate API call
+    // Simulate API call - in the future, this would be an actual API call
     setTimeout(() => {
       // Store in localStorage for persistence
       localStorage.setItem('financeApp_user', JSON.stringify({ name, email }));
