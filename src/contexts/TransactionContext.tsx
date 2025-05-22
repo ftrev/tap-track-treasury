@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, ReactNode } from 'react';
 import { Transaction, CategoryType, BalanceSummary, TransactionType, Budget, FinancialGoal } from '../types';
 import { useTransactionsData } from '../hooks/useTransactionsData';
@@ -22,7 +21,7 @@ type TransactionContextType = {
   getTransactionById: (id: string) => Transaction | undefined;
   addCategory: (category: Omit<CategoryType, 'id'>) => void;
   editCategory: (id: string, category: Omit<CategoryType, 'id'>) => void;
-  deleteCategory: (id: string) => boolean;
+  deleteCategory: (id: string) => Promise<boolean>; // Changed from boolean to Promise<boolean>
   addBudget: (budget: Omit<Budget, 'id' | 'spent' | 'lastUpdated'>) => void;
   updateBudget: (id: string, budget: Partial<Omit<Budget, 'id' | 'spent' | 'lastUpdated'>>) => void;
   deleteBudget: (id: string) => void;

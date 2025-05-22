@@ -2,6 +2,12 @@
 import { supabase } from '../integrations/supabase/client';
 import { Transaction, CategoryType, Budget, FinancialGoal } from '../types';
 
+// Helper function to get the current user's ID
+export const getCurrentUserId = async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  return session?.user?.id;
+};
+
 // Transactions
 export async function fetchTransactions() {
   const { data, error } = await supabase
@@ -30,6 +36,9 @@ export async function fetchTransactions() {
 }
 
 export async function addTransactionToDb(transaction: Omit<Transaction, 'id'>) {
+  const userId = await getCurrentUserId();
+  if (!userId) throw new Error('User not authenticated');
+  
   const { data, error } = await supabase
     .from('transactions')
     .insert({
@@ -38,7 +47,8 @@ export async function addTransactionToDb(transaction: Omit<Transaction, 'id'>) {
       category_id: transaction.category.id,
       description: transaction.description || null,
       date: transaction.date,
-      receipt_image: transaction.receiptImage || null
+      receipt_image: transaction.receiptImage || null,
+      user_id: userId
     })
     .select()
     .single();
@@ -98,13 +108,17 @@ export async function fetchCategories() {
 }
 
 export async function addCategoryToDb(category: Omit<CategoryType, 'id'>) {
+  const userId = await getCurrentUserId();
+  if (!userId) throw new Error('User not authenticated');
+
   const { data, error } = await supabase
     .from('categories')
     .insert({
       name: category.name,
       icon: category.icon,
       type: category.type,
-      color: category.color || null
+      color: category.color || null,
+      user_id: userId
     })
     .select()
     .single();
@@ -169,12 +183,16 @@ export async function fetchBudgets() {
 }
 
 export async function addBudgetToDb(budget: Omit<Budget, 'id' | 'spent' | 'lastUpdated'>) {
+  const userId = await getCurrentUserId();
+  if (!userId) throw new Error('User not authenticated');
+
   const { data, error } = await supabase
     .from('budgets')
     .insert({
       category_id: budget.categoryId,
       amount: budget.amount,
-      month: budget.month
+      month: budget.month,
+      user_id: userId
     })
     .select()
     .single();
@@ -259,6 +277,9 @@ export async function fetchFinancialGoals() {
 }
 
 export async function addFinancialGoalToDb(goal: Omit<FinancialGoal, 'id'>) {
+  const userId = await getCurrentUserId();
+  if (!userId) throw new Error('User not authenticated');
+
   const { data, error } = await supabase
     .from('financial_goals')
     .insert({
@@ -270,7 +291,8 @@ export async function addFinancialGoalToDb(goal: Omit<FinancialGoal, 'id'>) {
       icon_name: goal.iconName,
       color: goal.color || null,
       status: goal.status,
-      description: goal.description || null
+      description: goal.description || null,
+      user_id: userId
     })
     .select()
     .single();

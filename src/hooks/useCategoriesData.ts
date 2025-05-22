@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { CategoryType, TransactionType } from '../types';
 import { useToast } from './use-toast';
@@ -90,7 +91,7 @@ export function useCategoriesData() {
   }, [isAuthenticated, toast]);
 
   // Delete a category
-  const deleteCategory = useCallback(async (id: string) => {
+  const deleteCategory = useCallback(async (id: string): Promise<boolean> => {
     if (!isAuthenticated) return false;
 
     // TODO: Check if there are transactions using this category in Supabase
