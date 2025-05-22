@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { BottomNavigation } from './BottomNavigation';
+import { useIsMobile } from '../hooks/use-mobile';
 
 type LayoutProps = {
   children: React.ReactNode;
@@ -8,6 +9,8 @@ type LayoutProps = {
 };
 
 export const Layout: React.FC<LayoutProps> = ({ children, title }) => {
+  const isMobile = useIsMobile();
+  
   return (
     <div className="max-w-md mx-auto pb-20">
       <div className="px-4 py-6">

@@ -15,6 +15,7 @@ import { useTransactions } from '../contexts/TransactionContext';
 import { useToast } from "../hooks/use-toast";
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Index = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -22,6 +23,7 @@ const Index = () => {
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const { userName } = useTransactions();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     // Check if user is registered, if not, show registration modal
@@ -104,7 +106,7 @@ const Index = () => {
         
         <RecentTransactions />
 
-        {/* Floating Action Button */}
+        {/* Floating Action Button - ajustado para não sobrepor a navegação */}
         <button 
           className="fab bg-finance-primary hover:bg-finance-primary/90 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg fixed bottom-20 right-6"
           onClick={() => handleAddTransaction('expense')}
