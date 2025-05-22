@@ -2,9 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import { useTransactions } from '../contexts/TransactionContext';
 import { Transaction, TransactionType, CategoryType } from '../types';
-import { Dialog } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { X, Camera, Image } from "lucide-react";
+import { X, Camera } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 type AddTransactionModalProps = {
@@ -125,13 +125,14 @@ export function AddTransactionModal({ isOpen, onClose, initialType = 'expense' }
   
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <div className="fixed inset-0 z-30 flex items-end justify-center sm:items-center bg-black/25 animate-fade-in">
+      <DialogContent className="fixed inset-0 z-30 flex items-end justify-center sm:items-center bg-black/25 animate-fade-in p-0 border-none bg-transparent">
         <div className="bg-white w-full h-auto max-h-[90vh] rounded-t-2xl sm:rounded-2xl shadow-xl sm:max-w-md overflow-y-auto animate-slide-in">
           <div className="relative p-4 border-b">
             <h2 className="text-lg font-semibold text-center">Adicionar transação</h2>
             <button 
               onClick={onClose} 
               className="absolute right-4 top-4 text-gray-500 hover:text-gray-700"
+              aria-label="Fechar"
             >
               <X size={20} />
             </button>
@@ -258,7 +259,7 @@ export function AddTransactionModal({ isOpen, onClose, initialType = 'expense' }
             </Button>
           </form>
         </div>
-      </div>
+      </DialogContent>
     </Dialog>
   );
 }

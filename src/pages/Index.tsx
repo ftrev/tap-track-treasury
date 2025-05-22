@@ -23,9 +23,12 @@ const Index = () => {
 
   useEffect(() => {
     // Check if user is registered, if not, show registration modal
+    // Important: Make sure we're not showing both modals at the same time
     if (!userName) {
       setTimeout(() => {
         setIsUserModalOpen(true);
+        // Ensure transaction modal is closed when user modal is shown
+        setIsModalOpen(false);
       }, 500);
     }
   }, [userName]);
@@ -68,18 +71,19 @@ const Index = () => {
         >
           <Plus size={24} />
         </button>
-        
-        <AddTransactionModal 
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          initialType={transactionType}
-        />
-
-        <UserRegistrationModal
-          isOpen={isUserModalOpen}
-          onClose={() => setIsUserModalOpen(false)}
-        />
       </div>
+      
+      <AddTransactionModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        initialType={transactionType}
+      />
+
+      <UserRegistrationModal
+        isOpen={isUserModalOpen}
+        onClose={() => setIsUserModalOpen(false)}
+      />
+      
       <BottomNavigation />
     </div>
   );
