@@ -18,13 +18,3 @@ const config: CapacitorConfig = {
 };
 
 export default config;
-{
-  "icon": {
-    "android": "C:\Users\pimpa\OneDrive\Documentos\MoneyFlow\MoneyFlow.png",
-    "ios": "C:\Users\pimpa\OneDrive\Documentos\MoneyFlow\MoneyFlow.png"
-  },
-  "splash": {
-    "android": "C:\Users\pimpa\OneDrive\Documentos\MoneyFlow\MoneyFlow.png",
-    "ios": "C:\Users\pimpa\OneDrive\Documentos\MoneyFlow\MoneyFlow.png"
-  }
-}

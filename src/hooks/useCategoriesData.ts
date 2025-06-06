@@ -6,7 +6,8 @@ import {
   fetchCategories,
   addCategoryToDb,
   updateCategoryInDb,
-  deleteCategoryFromDb
+  deleteCategoryFromDb,
+  isCategoryUsed
 } from '../utils/supabaseUtils';
 import { useAuthStatus } from './useAuthStatus';
 
@@ -94,10 +95,17 @@ export function useCategoriesData() {
   const deleteCategory = useCallback(async (id: string): Promise<boolean> => {
     if (!isAuthenticated) return false;
 
-    // TODO: Check if there are transactions using this category in Supabase
-    // For now, we'll keep the client-side check
-    
     try {
+      const used = await isCategoryUsed(id);
+      if (used) {
+        toast({
+          title: "Erro ao remover categoria",
+          description: "Existem transações usando esta categoria.",
+          variant: "destructive"
+        });
+        return false;
+      }
+
       await deleteCategoryFromDb(id);
       setCategories(prev => prev.filter(c => c.id !== id));
       

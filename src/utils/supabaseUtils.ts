@@ -148,6 +148,24 @@ export async function updateCategoryInDb(id: string, category: Omit<CategoryType
   }
 }
 
+export async function isCategoryUsed(id: string): Promise<boolean> {
+  const userId = await getCurrentUserId();
+  if (!userId) return false;
+
+  const { count, error } = await supabase
+    .from('transactions')
+    .select('id', { count: 'exact', head: true })
+    .eq('category_id', id)
+    .eq('user_id', userId);
+
+  if (error) {
+    console.error('Error checking category usage:', error);
+    throw error;
+  }
+
+  return (count ?? 0) > 0;
+}
+
 export async function deleteCategoryFromDb(id: string) {
   const { error } = await supabase
     .from('categories')
