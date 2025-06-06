@@ -60,9 +60,16 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
+## Running locally
+
+1. Copy `.env.example` to `.env` and fill in your Supabase credentials.
+2. Install dependencies with `npm install`.
+3. Start the web version with `npm run dev`.
+4. To build the Android app, run `npx cap sync android` and open the generated project in Android Studio.
+
 ## How can I deploy this project?
 
-Simply open [Lovable](https://lovable.dev/projects/b4c725bd-8091-4a9c-91ba-e643bc0bb0f0) and click on Share -> Publish.
+Run `npm run build` to generate the web build. For Android, create a release build from Android Studio after syncing with Capacitor.
 
 ## Can I connect a custom domain to my Lovable project?
 
