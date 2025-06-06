@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
-import { Budget } from '../types';
+import { Budget, Transaction } from '../types';
 import { useToast } from './use-toast';
 import { format } from "date-fns";
 import {
@@ -66,7 +66,7 @@ export function useBudgetsData() {
   }, [budgets]);
 
   // Calculate how much was spent in a category for a specific month
-  const calculateSpentAmount = useCallback((categoryId: string, month: string, transactions: any[]) => {
+  const calculateSpentAmount = useCallback((categoryId: string, month: string, transactions: Transaction[]) => {
     return transactions
       .filter(t => t.type === 'expense' && 
                   t.category.id === categoryId && 

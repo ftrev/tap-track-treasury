@@ -69,7 +69,19 @@ This project is built with:
 
 ## How can I deploy this project?
 
-Run `npm run build` to generate the web build. For Android, create a release build from Android Studio after syncing with Capacitor.
+To create a production build of the web version run:
+
+```sh
+npm run build
+```
+
+For Android:
+
+1. Ensure the environment variables in `.env` are filled.
+2. Run `npx cap sync android` to generate the native project.
+3. Open the `android/` folder in Android Studio.
+4. Generate or import a signing keystore under *Build > Generate Signed Bundle / APK...*.
+5. Build an AAB or APK in release mode and upload it to Google Play.
 
 ## Can I connect a custom domain to my Lovable project?
 

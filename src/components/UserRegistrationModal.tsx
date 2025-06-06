@@ -67,10 +67,13 @@ export function UserRegistrationModal({ isOpen, onClose }: UserRegistrationModal
         description: "Bem-vindo ao app de controle financeiro.",
       });
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error
+        ? error.message
+        : "Ocorreu um erro ao tentar criar sua conta.";
       toast({
         title: "Erro ao criar conta",
-        description: error.message || "Ocorreu um erro ao tentar criar sua conta.",
+        description: message,
         variant: "destructive"
       });
     } finally {

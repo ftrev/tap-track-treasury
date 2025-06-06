@@ -29,7 +29,7 @@ type EditTransactionModalProps = {
   transaction: Transaction;
 };
 
-export const EditTransactionModal: React.FC<EditTransactionModalProps> = ({ 
+export const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
   isOpen, 
   onClose, 
   transaction 
@@ -41,7 +41,14 @@ export const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
   const [showImagePreview, setShowImagePreview] = useState<boolean>(!!transaction.receiptImage);
   const { toast } = useToast();
   
-  const form = useForm({
+  interface FormValues {
+    amount: number;
+    description: string;
+    category: string;
+    date: string;
+  }
+
+  const form = useForm<FormValues>({
     defaultValues: {
       amount: transaction.amount,
       description: transaction.description || '',
@@ -100,7 +107,7 @@ export const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
     setShowImagePreview(false);
   };
   
-  const onSubmit = (data: any) => {
+  const onSubmit = (data: FormValues) => {
     const selectedCategory = categories.find(c => c.id === data.category);
     
     if (!selectedCategory) {

@@ -223,8 +223,15 @@ export async function addBudgetToDb(budget: Omit<Budget, 'id' | 'spent' | 'lastU
   return data;
 }
 
-export async function updateBudgetInDb(id: string, budget: Partial<Omit<Budget, 'id' | 'spent' | 'lastUpdated'>>) {
-  const updateData: any = {};
+export async function updateBudgetInDb(
+  id: string,
+  budget: Partial<Omit<Budget, 'id' | 'spent' | 'lastUpdated'>>
+) {
+  const updateData: {
+    category_id?: string;
+    amount?: number;
+    month?: string;
+  } = {};
   
   if (budget.categoryId) updateData.category_id = budget.categoryId;
   if (budget.amount) updateData.amount = budget.amount;
@@ -323,8 +330,21 @@ export async function addFinancialGoalToDb(goal: Omit<FinancialGoal, 'id'>) {
   return data;
 }
 
-export async function updateFinancialGoalInDb(id: string, goal: Partial<Omit<FinancialGoal, 'id'>>) {
-  const updateData: any = {};
+export async function updateFinancialGoalInDb(
+  id: string,
+  goal: Partial<Omit<FinancialGoal, 'id'>>
+) {
+  const updateData: {
+    name?: string;
+    target_amount?: number;
+    current_amount?: number | null;
+    target_date?: string | null;
+    start_date?: string;
+    icon_name?: string;
+    color?: string | null;
+    status?: FinancialGoal['status'];
+    description?: string | null;
+  } = {};
   
   if (goal.name) updateData.name = goal.name;
   if (goal.targetAmount) updateData.target_amount = goal.targetAmount;

@@ -45,10 +45,13 @@ const Index = () => {
         description: "Você foi desconectado com sucesso.",
       });
       // The session change will be picked up by the auth context
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error
+        ? error.message
+        : "Ocorreu um erro ao tentar desconectar.";
       toast({
         title: "Erro ao desconectar",
-        description: error.message || "Ocorreu um erro ao tentar desconectar.",
+        description: message,
         variant: "destructive"
       });
     }
